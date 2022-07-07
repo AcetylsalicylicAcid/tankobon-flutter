@@ -1,88 +1,59 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:layout/layout.dart';
-import 'package:manga_reader/manga_list/manga_list.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:tankobon/domain/models/login.dart';
+import 'package:tankobon/l10n/l10n.dart';
+import 'package:tankobon/view/test_api_view.dart';
 
-import 'mock_data.dart';
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-void main() {
+  // final tmpDir = await getTemporaryDirectory();
+  // await Hive.initFlutter(tmpDir.toString());
+  // Hive.registerAdapter(LoginAdapter());
+  await Hive.initFlutter();
+  Hive.registerAdapter(LoginAdapter());
+  await Hive.openBox<List<dynamic>>('testBox');
+
   runApp(
-    const Layout(
-      child: MaterialApp(
-        title: 'Navigation Basics',
-        home: MyApp(),
-      ),
+    const ProviderScope(
+      child: App(),
     ),
   );
 }
 
-class MyApp extends HookWidget {
-  const MyApp({Key? key}) : super(key: key);
+class App extends HookConsumerWidget {
+  const App({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final appStructure = <Widget>[
-      CupertinoPageScaffold(
-        navigationBar: const CupertinoNavigationBar(
-          middle: Text('My manga'),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: MangaList(mangaList: mangaRead(context)),
-        ),
-      ),
-      CupertinoPageScaffold(
-        navigationBar: const CupertinoNavigationBar(
-          middle: Text('Manga listing'),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: MangaList(mangaList: mangaList),
-        ),
-      ),
-      const CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: Text('Manga listing'),
-        ),
-        child: Center(
-          child: Text(
-            'Settings',
-          ),
-        ),
-      ),
-    ];
+  Widget build(BuildContext context, WidgetRef ref) {
+    // useEffect(() {
+    //   Provider.of<DioState>(context, listen: false).setDio(Dio());
+    //   SharedPreferences.getInstance().then(
+    //     (value) => Provider.of<SharedPreferencesState>(context, listen: false)
+    //         .setSharedPreferences(value),
+    //   );
+    //   Connectivity().onConnectivityChanged.listen((ConnectivityResult value) {
+    //     Provider.of<ConnectivityState>(context, listen: false)
+    //         .setConnectivityStatus(value);
+    //   });
+    //   return null;
+    // });
 
     return MaterialApp(
-      title: 'Manga reader demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: CupertinoTabScaffold(
-        tabBar: CupertinoTabBar(
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.ten_k),
-              label: 'My manga',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.ten_k),
-              label: 'Manga listing',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.ten_k),
-              label: 'Settings',
-            ),
-          ],
+        appBarTheme: const AppBarTheme(color: Color(0xFF13B9FF)),
+        colorScheme: ColorScheme.fromSwatch(
+          accentColor: const Color(0xFF13B9FF),
         ),
-        tabBuilder: (BuildContext context, int index) {
-          return CupertinoTabView(
-            builder: (BuildContext context) {
-              return appStructure[index];
-            },
-          );
-        },
       ),
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: const TestApiView(),
     );
   }
 }

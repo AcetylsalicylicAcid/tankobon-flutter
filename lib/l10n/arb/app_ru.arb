@@ -1,0 +1,7 @@
+{
+  "@@locale": "ru",
+  "counterAppBarTitle": "Название",
+  "@counterAppBarTitle": {
+    "description": "Текст, который показывается в названии"
+  }
+}
